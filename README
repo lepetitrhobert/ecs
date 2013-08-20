@@ -1,0 +1,42 @@
+Entity-Component system designs:
+
++-----------------------------+---------------------------------------------------------+----------------------------------------------------+
+| description                 | Entities as lists of components                         | Components as lists of entities                    |
++-----------------------------+---------------------------------------------------------+----------------------------------------------------+ 
+| drawing                     |              +--------+           +-------------------+ | +-------------------+  +-------------------+       |
+|                             |              | entity |  - has -> | graphic component | | | graphic component |  | physics component |       |
+|                             |              +--------+           +-------------------+ | +-------------------+  +-------------------+       |
+|                             |                  |                                      |           |                      |                 |
+|                             |                 has                                     |        process                process              |
+|                             |                  v                                      |           |                      |                 |
+|                             |         +-------------------+                           |           v                      v                 |
+|                             |         | physics component |                           | +-------------------+  +-------------------+       |
+|                             |         +-------------------+                           | | List of entities  |  | List of entities  |       |
+|                             |                                                         | +-------------------+  +-------------------+       |
++-----------------------------+---------------------------------------------------------+----------------------------------------------------+
+| form and role of an entity  | An entity is a class containing a collection of         | An entity is an class (or structure) containing    |
+|                             | Components and shared memory accessibles for components | an ID and components' memory.                      |
+|                             | to store shared data.                                   |                                                    |
++-----------------------------+---------------------------------------------------------+----------------------------------------------------+
+| form and role of a component| A Component class implements its own logic, contains    | A component is a class providing one static        |
+|                             | private fields for it's own use (such as states) and    | function to process an entity, working on the      |
+|                             | can store and access shared fields stored in the entity.| entity's memory map.                               |
++-----------------------------+---------------------------------------------------------+----------------------------------------------------+
+| instances                   | 1 instance of a component per entity.                   | 1 instance per component.                          |
++-----------------------------+---------------------------------------------------------+----------------------------------------------------+
+| component update ordering   | The collection holding the entity might be ordered or   | Updating a component means updating processing     |
+|                             | pattern-entities can hard-code the update order.        | all the entities that register for a component,    |
+|                             |                                                         | thus the executing order is globally hard-coded.   |
++-----------------------------+---------------------------------------------------------+----------------------------------------------------+
+| paralellism capabilities    | None (?)                                                | SIMD paralellization with a messy memory access.   |
++-----------------------------+---------------------------------------------------------+----------------------------------------------------+
+| memory model                | Part of the memory in the components and the shared     | Components don't store data anymore, everything    |
+|                             | memory is stored in a map<string, void*> in the entity. | is stored in the entity's shared memory. It might  |
+|                             |                                                         | be very slow...                                    |
+|                             | Nb: Components need only to access once the map to find |                                                    |
+|                             | the shared reference they need and can then store it    |                                                    |
+|                             | internally for direct access.                           |                                                    |
++-----------------------------+---------------------------------------------------------+----------------------------------------------------+
+| components communication    | Done through the shared memory for broadcast or can be  | Done through the shared memory.                    |
+|                             | direct referencing by inspecting the entity's components|                                                    |
++-----------------------------+---------------------------------------------------------+----------------------------------------------------+
