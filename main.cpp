@@ -1,47 +1,31 @@
 #include <iostream>
+#include <string>
+#include <map>
 
-#include "Component.hpp"
-#include "ComponentModelStore.hpp"
+struct Component {
+    void (*processEntity)(long);
+    size_t required_memory_per_entity;
+};
 
-class ComponentTest : public Component {
+class ComponentManager {
     public:
-    virtual void do_initialize() {
-        std::cout << "do_initialize()" << std::endl;
-    }
-
-    virtual void do_update() {
-        std::cout << "do_update()" << std::endl;
-    }
-
-    virtual void do_delete() {
-        std::cout << "do_delete()" << std::endl;
-    }
-
-    ComponentTest(std::string name) : Component(name) {}
+    long create_entity();
+    void delete_entity(long id);
     
-    virtual ~ComponentTest() {}
-
-    protected:
-    virtual Component* clone() {
-        return new ComponentTest(modelName);
-    }
+    void entity_subscribe(std::string component, long entity);
+    void entity_unsubscribe(std::string component, long entity);
+    void entity_update(std::string component, long entity);
+        
+    void add_component(std::string name, struct Component component);
+    void remove_component(std::string name);
+    void update_component(std::string name);
+    
+    private:
+    std::map<std::string, struct Component> components;
+    
+    
 };
 
 int main(int argc, char** argv) {
-    ComponentModelStore* cms = ComponentModelStore::getInstance();
-    Component* testModel = new ComponentTest("test");
-
-    cms->registerComponentModel(testModel);
-    
-    Component* cloned = cms->createComponent("test");
-    
-    cloned->do_initialize();
-    cloned->do_update();
-    cloned->do_delete();
-
-    delete cms;
-    delete testModel;
-    delete cloned;
-
     return 0;
 }
